@@ -26,14 +26,44 @@ export default {
 </script>
 
  <style>
- body {
-
-   color: white;
+ @media all and (min-width:1240px) {
 
 
+   body {
 
-   background: #000;
+     color: white;
+
+
+     background: #000;
+   }
  }
+ @media all and (min-width:799px) and (max-width:1239px){
 
+   body{
+     display:flex;
+     justify-content: center;
+     align-items: center;
+     text-align: center;
+     color: white;
+     background: #000;
+
+   }
+
+
+ }
+ @media all  and (max-width:718px){
+
+   body{
+     display:flex;
+     justify-content: center;
+     align-items: center;
+     text-align: center;
+     color: white;
+     background: #000;
+
+   }
+
+
+ }
 
  </style>

@@ -4,13 +4,13 @@
       <div>
         <canvas id = "canvas" width="500" height="500" @click="clickCanvas"/>
       </div>
-      <div>
+      <div class="inp-val">
         <table  id = "numbers-table" class="background">
           <tr class="numbers">
             <td>X:</td>
             <td>
               <table id = "x-table">
-                <tr>
+                <tr class="inputX">
                   <td>
                     <label>
                       <input name = "xCheckbox" class="defaultBox" v-model="param_x" type="checkbox" value="-5" checked :disabled="hasAdditionalX">
@@ -84,18 +84,18 @@
                     </label>
                   </td>
                   <td colspan = "2">
-                    <button class="button" @click="undoX">
-                      снять выделение
+                    <button class="button-reset" @click="undoX">
+                      <p class="text-button">Убрать выделение</p>
                     </button>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
-          <tr>
+          <tr >
             <td>Y:</td>
-            <td>
-              <input type="text" id="inputY" name="y" v-model="param_y" maxlength="17" autocomplete="off" placeholder="Введите число: (-5; 5)">
+            <td class="inp-y">
+              <input type="text" class="text-input" id="inputY" name="y" v-model="param_y" maxlength="17" autocomplete="off" placeholder="Введите число: (-5; 5)">
             </td>
           </tr>
           <tr class="numbers">
@@ -105,7 +105,7 @@
                 <tr>
                   <td>
                     <label>
-                      <input name="rCheckbox" v-model="param_r" type="checkbox" value="-5" :disabled="hasAdditionalR">
+                      <input  name="rCheckbox" v-model="param_r" type="checkbox" value="-5" :disabled="hasAdditionalR">
                       <p>-5</p>
                     </label>
                   </td>
@@ -128,7 +128,7 @@
                     </label>
                   </td>
                   <td>
-                    <label>
+                    <label >
                       <input name="rCheckbox" v-model="param_r" type="checkbox" value="-1" :disabled="hasAdditionalR">
                       <p>-1</p>
                     </label>
@@ -158,28 +158,25 @@
                     </label>
                   </td>
                   <td colspan = "3" class="tr-for-buttons">
-                    <button class="button" @click="undoR">
-                      снять выделение
+                    <button class="button-reset" @click="undoR">
+                      <p class="text-button">Убрать выделение</p>
                     </button>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
-          <tr>
+          <tr class="tr-for-button">
             <td colspan="2">
               <button class="button" id = "submit" @click="submit">
-                Проверить
+                <p class="text-button">Проверить</p>
               </button>
-            </td>
-            <td colspan="2">
               <button class="button" id="clear" @click="clearAll">
-                Отчистить
+                <p class="text-button"> Отчистить</p>
               </button>
-            </td>
-            <td colspan="2">
-              <button class="button-logout" name="logout" @click="logout">
-                Выйти
+
+              <button class="button" name="logout" @click="logout">
+                <p class="text-button"> Выйти</p>
               </button>
             </td>
           </tr>
@@ -187,7 +184,7 @@
       </div>
     </div>
     <div class="res">
-      <table id = "resultTable">
+      <table id = "resultTable" class="table">
         <thead>
         <tr>
           <th>X</th>
@@ -210,7 +207,7 @@ export default {
   data(){
     return{
       param_x: [-5],
-      param_y: "",
+      param_y: " ",
       param_r: [1]
     }
   },
@@ -223,9 +220,11 @@ export default {
   },
 
   methods:{
-    submit(event){
-      if (this.checkR(this.param_r) || this.checkX(this.param_x) || this.checkY(this.param_y)){
-        this.submitForm(event, this.param_x[0], this.param_y, this.param_r[0]);
+    submit(e){
+
+      if (this.checkR(this.param_r) && this.checkX(this.param_x) && this.checkY(this.param_y) && this.param_y !== " "){
+
+        this.submitForm(e, this.param_x[0], this.param_y, this.param_r[0]);
       }
     },
     undoX(){
@@ -398,7 +397,7 @@ export default {
     },
 
     checkHit(x, y, r){
-      let hit = (x>= 0 && y <= 0 && -r/2 >= y - x/2)|| (x<=0 && x >= -r/2 && y <=0 && y >= -r)||(x>=0 && y >= 0 && (x*x + y*y <= r*r));
+      let hit = (x>= 0 && y <= 0 && -r/2 <= y - x/2)|| (x<=0 && x >= -r/2 && y <=0 && y >= -r)||(x>=0 && y >= 0 && (x*x + y*y <= r*r));
       if (hit){
         return "green";
       }else{
@@ -410,14 +409,14 @@ export default {
     getPoints() {
       const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
-      this.axios.get("http://localhost:8081/points", {
+      this.axios.get("http://localhost:8084/points", {
         headers: {"Authorization": "Bearer " + userDetails.accessToken}
       }).then(response => {
 
         if (response.data.length > 0) {
           $('tbody').html('');
           response.data.forEach(e => {
-            let tr = '<tr><td>' + e.x + '</td><td>' + e.y + '</td><td>' + e.r +'</td><td>' + e.answer + '</td></tr>';
+            let tr = '<tr><td>' +  Math.round(e.x * 1000) / 1000 + '</td><td>' + Math.round(e.y * 1000) / 1000 + '</td><td>' + e.r +'</td><td>' + e.answer + '</td></tr>';
             $('tbody').append(tr);
             this.drawAll(e.x, e.y, e.r);
           });
@@ -436,7 +435,7 @@ export default {
       const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
       if (userDetails) {
-        this.axios.post("http://localhost:8081/points", {
+        this.axios.post("http://localhost:8084/points", {
               x: X,
               y: Y,
               r: R
@@ -463,7 +462,7 @@ export default {
     },
 
     checkY(y){
-      if (!isNaN(y) && parseFloat(y) > -3 && parseFloat(y) < 3){
+      if (!isNaN(y) && parseFloat(y) > -3 && parseFloat(y) < 3 && y !== "" && y !== null){
         return true;
       } else {
         alert("Выберите Y в правильном диапазоне");
@@ -488,7 +487,7 @@ export default {
       this.draw();
       if (userDetails) {
 
-        this.axios.delete("http://localhost:8081/points",
+        this.axios.delete("http://localhost:8084/points",
             {
               headers: {"Authorization": "Bearer " + userDetails.accessToken}
             }).then(() => {
@@ -549,35 +548,366 @@ export default {
 </script>
 
 <style scoped>
-.res{
 
-  float: right;
+
+
+
+@media all and (min-width:1240px){
+  .res{
+    align-items: center;
+    float: right;
+    margin-right: 70px;
+    margin-top: 30px;
+  }
+
+  .inp{
+    align-items: center;
+    float: left;
+    margin-left: 70px;
+    margin-top: 30px;
+  }
+  .table {
+    text-align: center;
+    width: 500px;
+    font-size: 120%;
+    margin-bottom: 20px;
+    border: 1px solid #FFFFFF;
+    border-collapse: collapse;
+  }
+
+  .table header {
+    text-align: center;
+
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  #resultTBody {
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  .button {
+    text-align: center;
+    margin-top: 23px;
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+  }
+
+  .button-reset{
+    text-align: center;
+
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+    margin-bottom: 12px;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+
+  }
+
+  .tr-for-button{
+    text-align: left;
+  }
+
+  .text-input{
+    margin-bottom: 40px;
+    margin-top: 30px;
+    font-size: large;
+    text-align: center;
+    width: auto;
+    height: 30px;
+    border-radius: 50px;
+    font-family: "Fedra Sans";
+    text-align: center;
+    color: white;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+    border: 2px double white;
+
+  }
+
+
+  #canvas{
+    margin-bottom: 30px;
+  }
+
+  .text-button{
+    margin-top: unset;
+    font-size: 130%;
+  }
 
 }
+@media all and (min-width:799px) and (max-width:1239px){
+  /*body{*/
+  /*  display: flex;*/
+  /*  justify-content: center;*/
+  /*  align-items: center;*/
+  /*  text-align: center;*/
+  /*}*/
+  /*.res{*/
+  /*  align-items: center;*/
 
-.inp{
+  /*  margin-right: 70px;*/
+  /*  margin-top: 30px;*/
+  /*}*/
 
-  float: left;
-  margin-left: 30px;
-  margin-top: 20px;
+  .inp{
+    margin-top: 30px;
+    margin-bottom: 60px;
+  }
+  .table {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #FFFFFF;
+    border-collapse: collapse;
+  }
+
+  .table header {
+    text-align: center;
+
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  #resultTBody {
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  .button {
+    text-align: center;
+    margin-top: 23px;
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+  }
+
+  .button-reset{
+    text-align: center;
+
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+    margin-bottom: 12px;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+
+  }
+
+  .tr-for-button{
+    text-align: left;
+  }
+
+  .text-input{
+    margin-bottom: 40px;
+    margin-top: 40px;
+    margin-left: 7px;
+    font-size: large;
+    text-align: center;
+    width: auto;
+    height: 30px;
+    border-radius: 50px;
+    font-family: "Fedra Sans";
+    text-align: center;
+    color: white;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+    border: 2px double white;
+
+  }
+
+  #canvas{
+    margin-bottom: 30px;
+  }
+  .background {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .inp-y{
+
+    margin-left: auto;
+    text-align: left;
+  }
+  .text-button{
+    margin-top: unset;
+    font-size: 130%;
+  }
 }
 
-#resultTable tr{
+@media all and (max-width:718px) {
 
-  color: white;
+  .inp{
+    margin-top: 30px;
+    margin-bottom: 60px;
+  }
+  .table {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #FFFFFF;
+    border-collapse: collapse;
+  }
 
+  .table header {
+    text-align: center;
+
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  #resultTBody {
+    border: 1px solid #dddddd;
+    padding: 5px;
+  }
+
+  .button {
+    text-align: center;
+    margin-top: 23px;
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+  }
+
+  .button-reset{
+    text-align: center;
+
+    height: 50px;
+    width: auto;
+    --x: 50%;
+    --y: 50%;
+    margin-bottom: 12px;
+
+
+    margin-right: 15px;
+    position: relative;
+    appearance: none;
+    padding: 1em 2em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+
+    font-family: "Fedra Sans";
+    border: 2px solid transparent;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+
+  }
+
+  .tr-for-button{
+    text-align: left;
+  }
+
+  .text-input{
+    margin-bottom: 40px;
+    margin-top: 40px;
+    margin-left: 7px;
+    font-size: large;
+    text-align: center;
+    width: auto;
+    height: 30px;
+    border-radius: 50px;
+    font-family: "Fedra Sans";
+    text-align: center;
+    color: white;
+    background: linear-gradient(#000, #000) padding-box, radial-gradient(farthest-corner at var(--x) var(--y), white, white) border-box;
+    border: 2px double white;
+
+  }
+
+  #canvas{
+    margin-bottom: 30px;
+  }
+  .background {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .inp-y{
+
+    margin-left: auto;
+    text-align: left;
+  }
+  .text-button{
+    margin-top: unset;
+    font-size: 130%;
+  }
 }
 
-#resultTable tr th {
 
-  border: 2px solid white;
-
-}
-
-#resultTable body tr td{
-  text-align: center;
-
-  border: 2px solid white;
-}
 
 </style>
