@@ -47,12 +47,12 @@ export default {
     login(event) {
       event.preventDefault();
 
-      this.axios.post("http://localhost:8084/user/login", {
+      this.axios.post("http://localhost:8085/user/login", {
         username: this.username,
         password: this.password
       }).then(response => {
         localStorage.setItem("userDetails", JSON.stringify({userId: response.data.userId, accessToken: response.data.accessToken}));
-        localStorage.setItem("jwt", response.data.accessToken);
+
 
         this.$router.push('main');
       }).catch(() => {
@@ -61,7 +61,7 @@ export default {
     },
     register(event) {
       event.preventDefault();
-      this.axios.post("http://localhost:8084/user/register", {
+      this.axios.post("http://localhost:8085/user/register", {
         username: this.username,
         password: this.password
       }).then(() => {

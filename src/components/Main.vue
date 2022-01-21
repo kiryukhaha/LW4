@@ -409,7 +409,7 @@ export default {
     getPoints() {
       const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
-      this.axios.get("http://localhost:8084/points", {
+      this.axios.get("http://localhost:8085/points", {
         headers: {"Authorization": "Bearer " + userDetails.accessToken}
       }).then(response => {
 
@@ -435,7 +435,7 @@ export default {
       const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
       if (userDetails) {
-        this.axios.post("http://localhost:8084/points", {
+        this.axios.post("http://localhost:8085/points", {
               x: X,
               y: Y,
               r: R
@@ -487,7 +487,7 @@ export default {
       this.draw();
       if (userDetails) {
 
-        this.axios.delete("http://localhost:8084/points",
+        this.axios.delete("http://localhost:8085/points",
             {
               headers: {"Authorization": "Bearer " + userDetails.accessToken}
             }).then(() => {
@@ -534,8 +534,14 @@ export default {
 
 
   mounted() {
+
+
+    if (localStorage.getItem("userDetails") == null) {
+      this.$router.push("auth");
+    }else{
+
     this.draw();
-    this.getPoints();
+    this.getPoints();}
 
 
 

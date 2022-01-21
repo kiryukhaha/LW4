@@ -51,7 +51,7 @@ export default {
 
 
  }
- @media all  and (max-width:718px){
+ @media all  and (max-width:798px){
 
    body{
      display:flex;
